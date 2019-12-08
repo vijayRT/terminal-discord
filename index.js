@@ -15,6 +15,7 @@ process.stdin.setEncoding("utf8");
 process.stdout.setEncoding("utf8");
 const client = new discord.Client();
 
+parse_args();
 
 const default_config = {
   token: "",
@@ -187,7 +188,30 @@ function get_default_channel() {
   return false;
 }
 
-// Menu that selects a channel from nothing
+//Parse token and default guild or default channel arguments
+function parse_args() {
+  if(process.argv.length < 2) {
+    return;
+  }
+  else {
+    const stored_config = JSON.parse(fs.readFileSync(path.join(__dirname, "config.json")));
+    for(let i = 0; i < process.argv.length; i++) {
+      if((process.argv[i]) === "-t" || (process.argv[i]) === "--token") {
+        stored_config.token = process.argv[i + 1];
+      }
+      if((process.argv[i]) === "-g" || (process.argv[i]) === "--guild") {
+        stored_config.default_guild = process.argv[i + 1];
+      }
+      if((process.argv[i]) === "-c" || (process.argv[i]) === "--channel") {
+        stored_config.default_channel = process.argv[i + 1];
+      }
+    }
+    fs.writeFileSync("config.json", JSON.stringify(stored_config, undefined, 4));
+  }
+}
+
+// Menu that selects a channel from nothing]
+
 function init() {
   for (;;) {
     guild = select_guild();
