@@ -2,10 +2,10 @@
 
 const discord = require("discord.js");
 const fs = require("fs");
+const path = require("path");
 const readline = require("readline");
 const rl_sync = require("readline-sync");
 const chalk = require("chalk");
-const os = require("os");
 const rl = readline.createInterface({
   input: process.stdin,
   output: process.stdout,
@@ -14,6 +14,7 @@ const rl = readline.createInterface({
 process.stdin.setEncoding("utf8");
 process.stdout.setEncoding("utf8");
 const client = new discord.Client();
+
 
 const default_config = {
   token: "",
@@ -148,7 +149,7 @@ client.on("messageUpdate", (oldMessage, newMessage) => {
   }
 });
 
-client.on("error", err => {
+client.on("error", () => {
   console_out("[Connection error]");
 });
 
@@ -188,7 +189,7 @@ function get_default_channel() {
 
 // Menu that selects a channel from nothing
 function init() {
-  while (true) {
+  for (;;) {
     guild = select_guild();
     if (guild === undefined) {
       console_out("No guild selected.\nShowing direct messages...");
@@ -205,7 +206,7 @@ function init() {
       }
     }
 
-    while (true) {
+    for (;;) {
       channel = select_channel();
       if (channel === undefined) {
         break;
@@ -258,9 +259,9 @@ function select_other() {
     c.type === "dm"
       ? c.recipient.username
       : c.recipients
-          .array()
-          .map(r => r.username)
-          .join()
+        .array()
+        .map(r => r.username)
+        .join()
   );
 
   return channel_list[select_item(channel_names)];
@@ -296,10 +297,9 @@ function channel_sendable(c) {
 // Returns a object with all relevant options
 function parse_config() {
   let config = default_config;
-  let user_config;
-  let config_path = get_config_path();
+  let config_path = path.join(__dirname, "config.json");
   try {
-    user_config = JSON.parse(fs.readFileSync(config_path, "utf8"));
+    config = JSON.parse(fs.readFileSync(config_path, "utf8"));
   } catch (err) {
     if (err.code === "ENOENT") {
       exit("Config file " + config_path + " does not exist");
@@ -309,13 +309,6 @@ function parse_config() {
       exit("Could not parse config file");
     }
   }
-
-  for (let key in config) {
-    if (user_config[key] !== undefined) {
-      config[key] = user_config[key];
-    }
-  }
-
   if (config["token"] === "") {
     exit(
       "Config file " +
@@ -326,10 +319,10 @@ function parse_config() {
 
   // Check for inconsistencies
   let found_inconsistency = false;
-  // allign and right_bound
-  if (!config["allign"] && config["right_bound"]) {
+  // align and right_bound
+  if (!config["align"] && config["right_bound"]) {
     found_inconsistency = true;
-    config["allign"] = true;
+    config["align"] = true;
     console_out("[Config Error] right_bound requires allign to be true");
     console_out("[Config Error] allign set to true");
   }
@@ -357,47 +350,7 @@ function parse_config() {
     rl_sync.keyInPause(" ");
     rl.resume();
   }
-
   return config;
-}
-
-// Locates a config file
-// Parses command line args first and then tries default locations
-function get_config_path() {
-  if (process.argv[2] !== undefined) {
-    return process.argv[2];
-  }
-
-  let homedir = os.homedir();
-  if (fs.existsSync(homedir + "/.terminal-discord/config.json")) {
-    return homedir + "/.terminal-discord/config.json";
-  } else if (fs.existsSync(homedir + "/.config/terminal-discord/config.json")) {
-    return homedir + "/.config/terminal-discord/config.json";
-  } else {
-    console_out("No config could be found in the default locations.");
-    if (rl_sync.keyInYNStrict("Create a default config?")) {
-      let install_path = "";
-      if (fs.existsSync(homedir + "/.config/")) {
-        if (!fs.existsSync(homedir + "/.config/terminal-discord/")) {
-          fs.mkdirSync(homedir + "/.config/terminal-discord");
-        }
-        install_path = homedir + "/.config/terminal-discord/";
-      } else {
-        if (!fs.existsSync(homedir + "/.terminal-discord/")) {
-          fs.mkdirSync(homedir + "/.terminal-discord");
-        }
-        install_path = homedir + "/.terminal-discord";
-      }
-      fs.writeFileSync(
-        install_path + "/config.json",
-        JSON.stringify(default_config, undefined, 4)
-      );
-      console_out("Created a config file in " + install_path);
-      return install_path + "config.json";
-    } else {
-      exit("Exiting...");
-    }
-  }
 }
 
 function exit(reason) {
@@ -448,7 +401,7 @@ function update() {
 
 // Fill messages array with messages from channel and show them with `update()`
 function history() {
-  n =
+  let n =
     config["history_length"] === null
       ? Math.min(process.stdout.rows, 100)
       : config["history_length"];
@@ -510,9 +463,9 @@ function show_message(message) {
 
   let attachment = config["show_embeds"]
     ? message.attachments
-        .array()
-        .map(a => a.url)
-        .join("\n")
+      .array()
+      .map(a => a.url)
+      .join("\n")
     : "";
 
   if (config["max_name_length"] !== null) {
@@ -733,7 +686,7 @@ function select_item(items) {
     MAX_PAGE_INDEX = Math.ceil(items.length / MAX_ITEMS) - 1;
 
   let page_index = 0;
-  while (true) {
+  for (;;) {
     const PAGE_ITEMS = [];
     let index_prev = -1,
       index_next = -1;
@@ -777,117 +730,117 @@ function command(cmd, arg) {
   let last_message;
   let new_channel;
   switch (cmd) {
-    case "q":
-    case "quit":
-      process.exit(-1);
-      break;
-    case "nick":
-      channel.guild.me.setNickname(arg);
-      console_out("Set nick to " + arg);
-      break;
-    case "update":
-    case "refresh":
-    case "u":
-    case "r":
-      clear_screen();
-      history();
-      break;
-    case "d":
-    case "delete":
-      last_message = client.user.lastMessage;
-      if (last_message !== null && last_message.deletable) {
-        last_message.delete();
-      }
-      clear_screen();
-      update();
-      break;
-    case "e":
-    case "edit":
-      last_message = client.user.lastMessage;
-      if (last_message !== null && last_message.editable) {
-        last_message.edit(arg);
-      }
-      clear_screen();
-      update();
-      break;
-    case "m":
-    case "menu":
-      clear_screen();
-      init();
-      history();
-      break;
-    case "c":
-    case "channel":
-      new_channel = select_channel();
-      channel = new_channel === undefined ? channel : new_channel;
-      update_prompt();
-      clear_screen();
-      history();
-      break;
-    case "o":
-    case "online":
-      if (channel.type === "text") {
-        let members_list = channel.guild.members
-          .array()
-          .filter(m => m.presence.status !== "offline");
+  case "q":
+  case "quit":
+    process.exit(-1);
+    break;
+  case "nick":
+    channel.guild.me.setNickname(arg);
+    console_out("Set nick to " + arg);
+    break;
+  case "update":
+  case "refresh":
+  case "u":
+  case "r":
+    clear_screen();
+    history();
+    break;
+  case "d":
+  case "delete":
+    last_message = client.user.lastMessage;
+    if (last_message !== null && last_message.deletable) {
+      last_message.delete();
+    }
+    clear_screen();
+    update();
+    break;
+  case "e":
+  case "edit":
+    last_message = client.user.lastMessage;
+    if (last_message !== null && last_message.editable) {
+      last_message.edit(arg);
+    }
+    clear_screen();
+    update();
+    break;
+  case "m":
+  case "menu":
+    clear_screen();
+    init();
+    history();
+    break;
+  case "c":
+  case "channel":
+    new_channel = select_channel();
+    channel = new_channel === undefined ? channel : new_channel;
+    update_prompt();
+    clear_screen();
+    history();
+    break;
+  case "o":
+  case "online":
+    if (channel.type === "text") {
+      let members_list = channel.guild.members
+        .array()
+        .filter(m => m.presence.status !== "offline");
 
-        clear_screen();
-        console_out("Online Users: ");
-        members_list.forEach(m =>
-          console_out(
-            "  " +
+      clear_screen();
+      console_out("Online Users: ");
+      members_list.forEach(m =>
+        console_out(
+          "  " +
               m.user.presence.status.slice(0, 3) +
               "  " +
               (m.nickname !== null
                 ? m.nickname + " aka " + m.user.username
                 : m.user.username)
-          )
-        );
-        rl.pause();
-        rl_sync.keyInPause(" ");
-        rl.resume();
-      }
+        )
+      );
+      rl.pause();
+      rl_sync.keyInPause(" ");
+      rl.resume();
+    }
 
-      clear_screen();
-      update();
-      break;
-    case "pm":
-    case "dm":
-    case "g":
-    case "gr":
-    case "group":
-      new_channel = select_other();
-      channel = new_channel === undefined ? channel : new_channel;
-      update_prompt();
-      clear_screen();
-      history();
-      break;
-    case "i":
-    case "info":
-      channel_info();
-      rl.pause();
-      rl_sync.keyInPause(" ");
-      rl.resume();
-      clear_screen();
-      update();
-      break;
-    case "b":
-    case "block":
-      hide_blocked = !hide_blocked;
-      clear_screen();
-      update();
-      break;
-    case "h":
-    case "help":
-      help_info();
-      rl.pause();
-      rl_sync.keyInPause(" ");
-      rl.resume();
-      clear_screen();
-      update();
-      break;
-    default:
-      console_out("Unknown command");
-      break;
+    clear_screen();
+    update();
+    break;
+  case "pm":
+  case "dm":
+  case "g":
+  case "gr":
+  case "group":
+    new_channel = select_other();
+    channel = new_channel === undefined ? channel : new_channel;
+    update_prompt();
+    clear_screen();
+    history();
+    break;
+  case "i":
+  case "info":
+    channel_info();
+    rl.pause();
+    rl_sync.keyInPause(" ");
+    rl.resume();
+    clear_screen();
+    update();
+    break;
+  case "b":
+  case "block":
+    hide_blocked = !hide_blocked;
+    clear_screen();
+    update();
+    break;
+  case "h":
+  case "help":
+    help_info();
+    rl.pause();
+    rl_sync.keyInPause(" ");
+    rl.resume();
+    clear_screen();
+    update();
+    break;
+  default:
+    console_out("Unknown command");
+    break;
   }
 }
