@@ -16,21 +16,10 @@ Install with `npm install -g terminal-discord`
 
 (Note to Linux users: If you run into any permissions errors while trying to install with sudo, follow the steps provided [here](https://github.com/glenpike/npm-g_nosudo)).
 
-## Running on Windows
 
-If windows cannot resolve the path for the home directory (when it gives something like `undefined/.terminal-discord` not found) then provide the config file as an argument as described below.
+## Logging In
 
-## Config-File
-
-The default locations for the config file are ~/.config/terminal-discord or ~/.terminal-discord. It is however also possible to pass a path to a config file like such
-
-\$terminal-discord PATH_TO_CONFIG
-
-All settings except Token are optional. Defaults can be found at the beginning of index.js where the config-file is parsed.
-
-Check the example config in the repository for an example.
-
-### token
+To use Terminal-Discord with your Discord account, you need the Discord client token associated with it.
 
 Discord has made token retrieval more difficult after recent updates. To find your token you have to navigate to the discord browser site, open the developer tools with ctrl+shift+i or similar and find the local storage as shown in the picture.
 
@@ -38,13 +27,23 @@ Once you reload the page the token will pop up for about a second. Copy it and p
 
 ![Token](token.png)
 
+Once you have retrieved your token, start terminal-discord with the below command
+
+`$terminal-discord -t <retrieved_token>`
+
+This is a one-time operation. Your token will be saved within a config file in your terminal-discord app directory. Other options provided in the config file are explained below.
+
+## Config-File
+
+The Config file `config.json` is located in the installation directory of the terminal-discord app. Since the installation directory of global npm packages differs across platforms, consult this [Stackoverflow answer](https://stackoverflow.com/a/5926706) to get your install location.
+
 ### max_name_length
 
 The maximum length of usernames. If the value is null usernames are not cut short.
 
-### allign
+### align
 
-Requires max_name_length to be set.  
+Requires `max_name_length` option to be set.  
 If this option is set to false the seperators will be displayed right after the username instead of them being alligned with other seperators.
 
 ### right_bound
@@ -64,11 +63,16 @@ Number of messages loaded at a time. If set to null will fetch as many messages 
 
 If not null this corresponds to the index of the guild you want selected at startup.
 
+Can also be set using `$terminal-discord -g <guild_index>`
+
+
 ### default_channel
 
 If not null this corresponds to the index of the channel you want selected at startup.
 
 To get the indices for both guild and channel navigate to your channel and use the /info command.
+
+Can also be set using `$terminal-discord -c <channel_index>`
 
 ### prompt
 
