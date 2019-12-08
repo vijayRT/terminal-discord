@@ -20,4 +20,4 @@ const default_config = {
   repeat_name: true,
   right_bound: false
 };
-fs.writeFileSync(path, JSON.stringify(default_config, undefined, 4));
+fs.writeFileSync(path.join(__dirname, "config.json"), JSON.stringify(default_config, undefined, 4));
