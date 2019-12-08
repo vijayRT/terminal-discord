@@ -21,7 +21,7 @@ Install with `npm install -g terminal-discord`
 
 To use Terminal-Discord with your Discord account, you need the Discord client token associated with it.
 
-Discord has made token retrieval more difficult after recent updates. To find your token you have to navigate to the discord browser site, open the developer tools with ctrl+shift+i or similar and find the local storage as shown in the picture.
+Discord has made token retrieval more difficult after recent updates. To find your token you have to navigate to the discord browser site, open the developer tools with <kbd>Ctrl</kbd>+<kbd>Shift<kbd>+<kbd>I</kbd> or <kbd>F12</kbd> or similar and find the local storage as shown in the picture.
 
 Once you reload the page the token will pop up for about a second. Copy it and paste it in the config-file.
 
