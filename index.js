@@ -189,6 +189,52 @@ function get_default_channel() {
   return false;
 }
 
+//Create new config if it doesn't exist
+function create_new_config() {
+  const homedir = os.homedir();
+  let configDirPath;
+  if (fs.existsSync(path.join(homedir, ".config"))) {
+    configDirPath = path.join(homedir, ".config", "terminal-discord");
+  } else {
+    configDirPath = path.join(homedir, ".terminal-discord");
+  }
+  let configFilePath = path.join(configDirPath, "config.json");
+  console.log(`Does config directory exist: ${fs.existsSync(configDirPath)}`);
+  console.log(`Does config file exist: ${fs.existsSync(configFilePath)}`);
+  if (!fs.existsSync(configDirPath)) {
+    console.log(`Generating config directory at ${configDirPath}`);
+    fs.mkdirSync(configDirPath);
+  }
+  if (!fs.existsSync(configFilePath)) {
+    console.log(`Generating default configuration file at ${configFilePath}`);
+    const config = {
+      token: "",
+      max_name_length: 15,
+      align: false,
+      separator: ":",
+      history_length: null,
+      default_guild: null,
+      default_channel: null,
+      mention_color: "#A52D00",
+      default_color: "#FFFFFF",
+      prompt: ">",
+      show_date: true,
+      show_time: true,
+      use_nickname: true,
+      select_count: 8,
+      color_support: true,
+      show_embeds: true,
+      repeat_name: true,
+      right_bound: false,
+      block_messages: true
+    };
+    fs.writeFileSync(
+      configFilePath,
+      JSON.stringify(config, undefined, 4)
+    );
+    return configFilePath;
+  }
+}
 //Get the config file location
 function get_config_path() {
   const possible_config_paths = [
@@ -200,6 +246,8 @@ function get_config_path() {
       return possible_config_path;
     }
   }
+  const newConfigPath = create_new_config();
+  return newConfigPath;
 }
 
 //Parse token and default guild or default channel arguments

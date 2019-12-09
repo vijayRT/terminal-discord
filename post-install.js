@@ -31,18 +31,15 @@ if (fs.existsSync(path.join(homedir, ".config"))) {
 } else {
   configDirPath = path.join(homedir, ".terminal-discord");
 }
-let configFilePath = configDirPath + "/config.json";
-console.log("Does config directory exist: " + fs.existsSync(configDirPath));
-console.log("Does config file exist: " + fs.existsSync(configFilePath));
+let configFilePath = path.join(configDirPath, "config.json");
+console.log(`Does config directory exist: ${fs.existsSync(configDirPath)}`);
+console.log(`Does config file exist: ${fs.existsSync(configFilePath)}`);
 if (!fs.existsSync(configDirPath)) {
-  console.log("\nGenerating config directory at " + configDirPath);
+  console.log(`Generating config directory at ${configDirPath}`);
   fs.mkdirSync(configDirPath);
 }
 if (!fs.existsSync(configFilePath)) {
-  console.log(
-    "\nGenerating default configuration file at " +
-      configFilePath
-  );
+  console.log(`Generating default configuration file at ${configFilePath}`);
   fs.writeFileSync(
     configFilePath,
     JSON.stringify(default_config, undefined, 4)
