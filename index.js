@@ -260,12 +260,15 @@ function parse_args() {
     const stored_config = JSON.parse(fs.readFileSync(config_path));
     for(let i = 0; i < process.argv.length; i++) {
       if((process.argv[i]) === "-t" || (process.argv[i]) === "--token") {
+        console.log("Setting token in config file");
         stored_config.token = process.argv[i + 1];
       }
       if((process.argv[i]) === "-g" || (process.argv[i]) === "--guild") {
+        console.log("Setting default guild in config file");
         stored_config.default_guild = process.argv[i + 1];
       }
       if((process.argv[i]) === "-c" || (process.argv[i]) === "--channel") {
+        console.log("Setting default channel in config file");
         stored_config.default_channel = process.argv[i + 1];
       }
     }
