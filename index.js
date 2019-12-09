@@ -21,7 +21,7 @@ parse_args();
 const default_config = {
   token: "",
   max_name_length: 15,
-  allign: false,
+  align: false,
   separator: ":",
   history_length: null,
   default_guild: null,
@@ -361,8 +361,8 @@ function parse_config() {
   if (!config["align"] && config["right_bound"]) {
     found_inconsistency = true;
     config["align"] = true;
-    console_out("[Config Error] right_bound requires allign to be true");
-    console_out("[Config Error] allign set to true");
+    console_out("[Config Error] right_bound requires align to be true");
+    console_out("[Config Error] align set to true");
   }
 
   // right_bound and max_name_length
@@ -507,7 +507,7 @@ function show_message(message) {
     : "";
 
   if (config["max_name_length"] !== null) {
-    if (author.length < config["max_name_length"] && config["allign"]) {
+    if (author.length < config["max_name_length"] && config["align"]) {
       let x = config["max_name_length"] - author.length;
       if (config["right_bound"]) {
         author = " ".repeat(x) + author;
