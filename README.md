@@ -31,11 +31,11 @@ Once you have retrieved your token, start terminal-discord with the below comman
 
 `$terminal-discord -t <retrieved_token>`
 
-This is a one-time operation. Your token will be saved within a config file in your terminal-discord app directory. Other options provided in the config file are explained below.
+This is a one-time operation. Your token will be saved within a config file on your filesystem. Other options provided in the config file are explained below.
 
 ## Config-File
 
-The Config file `config.json` is located in the installation directory of the terminal-discord app. Since the installation directory of global npm packages differs across platforms, consult this [Stackoverflow answer](https://stackoverflow.com/a/5926706) to get your install location.
+The Config file is created in either `$HOME/.config/terminal-discord/config.json` or `$HOME/.terminal-discord/config.json`. It contains the following options for configuring your terminal-discord experience.
 
 ### max_name_length
 

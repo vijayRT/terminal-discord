@@ -20,4 +20,33 @@ const default_config = {
   repeat_name: true,
   right_bound: false
 };
-fs.writeFileSync(path.join(__dirname, "config.json"), JSON.stringify(default_config, undefined, 4));
+if (process.env.SUDO_UID !== undefined) {
+  console.log("Script is running as root user, aborting...");
+  process.exit(0);
+}
+let homedir = process.env.HOME;
+let configDirPath;
+if (fs.existsSync(path.join(homedir, ".config"))) {
+  configDirPath = path.join(homedir, ".config", "terminal-discord");
+} else {
+  configDirPath = path.join(homedir, ".terminal-discord");
+}
+let configFilePath = configDirPath + "/config.json";
+console.log("Does config directory exist: " + fs.existsSync(configDirPath));
+console.log("Does config file exist: " + fs.existsSync(configFilePath));
+if (!fs.existsSync(configDirPath)) {
+  console.log("\nGenerating config directory at " + configDirPath);
+  fs.mkdirSync(configDirPath);
+}
+if (!fs.existsSync(configFilePath)) {
+  console.log(
+    "\nGenerating default configuration file at " +
+      configFilePath
+  );
+  fs.writeFileSync(
+    configFilePath,
+    JSON.stringify(default_config, undefined, 4)
+  );
+} else {
+  console.log("terminal-discord config already exists.");
+}

@@ -2,6 +2,7 @@
 
 const discord = require("discord.js");
 const fs = require("fs");
+const os = require("os");
 const path = require("path");
 const readline = require("readline");
 const rl_sync = require("readline-sync");
@@ -188,13 +189,27 @@ function get_default_channel() {
   return false;
 }
 
+//Get the config file location
+function get_config_path() {
+  const possible_config_paths = [
+    path.join(os.homedir(), ".config", "terminal-discord", "config.json"),
+    path.join(os.homedir(), ".terminal-discord", "config.json")
+  ];
+  for (let possible_config_path of possible_config_paths) {
+    if (fs.existsSync(possible_config_path)) {
+      return possible_config_path;
+    }
+  }
+}
+
 //Parse token and default guild or default channel arguments
 function parse_args() {
   if(process.argv.length < 2) {
     return;
   }
   else {
-    const stored_config = JSON.parse(fs.readFileSync(path.join(__dirname, "config.json")));
+    const config_path = get_config_path();
+    const stored_config = JSON.parse(fs.readFileSync(config_path));
     for(let i = 0; i < process.argv.length; i++) {
       if((process.argv[i]) === "-t" || (process.argv[i]) === "--token") {
         stored_config.token = process.argv[i + 1];
@@ -206,10 +221,9 @@ function parse_args() {
         stored_config.default_channel = process.argv[i + 1];
       }
     }
-    fs.writeFileSync("config.json", JSON.stringify(stored_config, undefined, 4));
+    fs.writeFileSync(config_path, JSON.stringify(stored_config, undefined, 4));
   }
 }
-
 // Menu that selects a channel from nothing]
 
 function init() {
@@ -321,7 +335,7 @@ function channel_sendable(c) {
 // Returns a object with all relevant options
 function parse_config() {
   let config = default_config;
-  let config_path = path.join(__dirname, "config.json");
+  let config_path = get_config_path();
   try {
     config = JSON.parse(fs.readFileSync(config_path, "utf8"));
   } catch (err) {
